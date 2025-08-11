@@ -27,9 +27,24 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/payment', require('./routes/payment'));
 app.use('/api/webhook', require('./routes/webhook'));
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'SabPaisa Payment Backend Running',
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ 
+    ok: true, 
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
 // Error handling
