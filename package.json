@@ -2,7 +2,7 @@
   "name": "sabpaisa-backend",
   "version": "1.0.0",
   "description": "SabPaisa Payment Gateway Backend",
-  "main": "simple-server.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon simple-server.js",

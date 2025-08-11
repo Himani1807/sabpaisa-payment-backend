@@ -93,6 +93,7 @@ app.post('/api/sabpaisa/callback', (req, res) => {
 // Import routes
 app.use('/api/payment', require('./routes/payment'));
 app.use('/api/webhook', require('./routes/webhook'));
+app.use('/api/sabpaisa', require('./routes/sabpaisa-init'));
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Simple Backend Server running on port ${PORT}`);
