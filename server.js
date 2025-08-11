@@ -26,6 +26,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Routes
 app.use('/api/payment', require('./routes/payment'));
 app.use('/api/webhook', require('./routes/webhook'));
+app.use('/api/sabpaisa', require('./routes/sabpaisa-init'));
 
 // Root route
 app.get('/', (req, res) => {
