@@ -79,12 +79,10 @@ app.post('/api/sabpaisa/callback', (req, res) => {
   if (req.body.encResponse) {
     setImmediate(() => {
       try {
-        // Import webhook controller and process
-        const WebhookController = require('./controllers/webhookController');
-        WebhookController.handleSabPaisaWebhook(req, { 
-          json: () => {}, 
-          status: () => ({ json: () => {} }) 
-        });
+        console.log('📋 Processing callback in background...');
+        // TODO: Add proper webhook processing here
+        // For now, just log the encrypted response
+        console.log('🔐 Encrypted response length:', req.body.encResponse.length);
       } catch (error) {
         console.error('⚠️ Background callback processing error:', error);
       }
