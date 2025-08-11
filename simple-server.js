@@ -24,16 +24,77 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  if (req.path.includes('/api/sabpaisa/callback')) {
+    console.log(`📨 ${req.method} ${req.path}`, {
+      contentType: req.headers['content-type'],
+      bodyKeys: Object.keys(req.body || {}),
+      timestamp: new Date().toISOString()
+    });
+  }
+  next();
+});
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'SabPaisa Payment Backend Running',
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/health',
+      payment: '/api/payment/initiate',
+      callback: '/api/sabpaisa/callback',
+      status: '/api/payment/status/:clientTxnId'
+    }
+  });
+});
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ 
+    ok: true, 
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// SabPaisa callback route (immediate response)
+app.post('/api/sabpaisa/callback', (req, res) => {
+  console.log('🔄 SabPaisa callback received:', {
+    timestamp: new Date().toISOString(),
+    encResponse: req.body.encResponse ? 'Present' : 'Missing',
+    bodySize: JSON.stringify(req.body).length
+  });
+  
+  // Respond immediately to SabPaisa
+  res.status(200).send('OK');
+  
+  // Process in background (don't block response)
+  if (req.body.encResponse) {
+    setImmediate(() => {
+      try {
+        // Import webhook controller and process
+        const WebhookController = require('./controllers/webhookController');
+        WebhookController.handleSabPaisaWebhook(req, { 
+          json: () => {}, 
+          status: () => ({ json: () => {} }) 
+        });
+      } catch (error) {
+        console.error('⚠️ Background callback processing error:', error);
+      }
+    });
+  }
+});
 
 // Import routes
 app.use('/api/payment', require('./routes/payment'));
 app.use('/api/webhook', require('./routes/webhook'));
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK' });
-});
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Simple Backend Server running on port ${PORT}`);
